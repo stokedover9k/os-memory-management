@@ -1,10 +1,16 @@
 #include <cstdlib>
 #include <iostream>
+#include <iterator>
+#include <fstream>
 #include <stdexcept>
 
 #include "loglib.h"
+#include "random_generator.h"
 
 char const * const USAGE_STR = "Usage: ./mmu [-a<algo>] [-o<options>] [–f<num_frames>] inputfile randomfile";
+
+extern random_generator *rgen;
+random_generator *rgen = NULL;
 
 namespace PARAMS
 {
@@ -38,7 +44,16 @@ int main(int argc, char const *argv[])
   // open file for logging
   Output2FILE::Stream() = fopen( "trace.log", "w" );
 
-
+  //----------- set up random generator ------//
+  {
+    ifstream inrandom(PARAMS::randomfile);
+    if( !inrandom ) {
+      std::cerr << "Error (INVALID ARGUMENT): cannot read random file." << "\n\t" << USAGE_STR << '\n';
+      exit(2); }
+    int numbers;
+    inrandom >> numbers;
+    rgen = new looping_random_generator(istream_iterator<int>(inrandom), istream_iterator<int>());
+  }
 
   cout << "done" << endl;
 }
