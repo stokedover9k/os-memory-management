@@ -1,0 +1,29 @@
+# Compiled executable
+mmu
+
+# Test data extracted from included tar-ball
+inputs/
+
+# Trace output
+trace.log
+
+# Build and Setup directories
+build/
+CMakeFiles/
+
+# Extra test data
+TestDataLarge.tar.bz2
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
