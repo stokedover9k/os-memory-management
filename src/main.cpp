@@ -76,6 +76,10 @@ void parse_args(int argc, char const *argv[]) {
             default: throw std::invalid_argument(arg + " unknown option " + arg[j]);
           }
         break;
+      case 'f':
+        PARAMS::num_frames = atoi( arg.substr(2).c_str() );
+        if( PARAMS::num_frames == 0 ) throw std::invalid_argument(arg);
+        break;
       default: throw std::invalid_argument(arg);
     }
   }
