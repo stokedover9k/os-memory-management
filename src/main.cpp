@@ -1,16 +1,17 @@
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <fstream>
 #include <stdexcept>
+#include <vector>
 
 #include "loglib.h"
-#include "random_generator.h"
+#include "random_gen.h"
+
+#define NUM_PAGES (64)
 
 char const * const USAGE_STR = "Usage: ./mmu [-a<algo>] [-o<options>] [–f<num_frames>] inputfile randomfile";
-
-extern random_generator *rgen;
-random_generator *rgen = NULL;
 
 namespace PARAMS
 {
@@ -47,12 +48,12 @@ int main(int argc, char const *argv[])
   //----------- set up random generator ------//
   {
     ifstream inrandom(PARAMS::randomfile);
-    if( !inrandom ) {
-      std::cerr << "Error (INVALID ARGUMENT): cannot read random file." << "\n\t" << USAGE_STR << '\n';
-      exit(2); }
     int numbers;
     inrandom >> numbers;
-    rgen = new looping_random_generator(istream_iterator<int>(inrandom), istream_iterator<int>());
+
+    std::vector<int> rvec(numbers);
+    rvec.assign(istream_iterator<int>(inrandom), istream_iterator<int>());
+    rnd::looping_random_iterator<std::vector<int> >::set_container(std::move(rvec));
   }
 
   cout << "done" << endl;
@@ -82,7 +83,7 @@ void parse_args(int argc, char const *argv[]) {
         break;
       case 'o':
         PARAMS::output = 0;
-        for (int j = 2; j < arg.length(); ++j)
+        for (unsigned int j = 2; j < arg.length(); ++j)
           switch( arg[j] ) {
             case 'O':  PARAMS::output |= PARAMS::OPERATIONS;    break;
             case 'P':  PARAMS::output |= PARAMS::FINAL_PAGES;   break;
