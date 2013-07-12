@@ -4,6 +4,6 @@ endif (UNIX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(mmu_SOURCES main.cpp pte.cpp)
+set(mmu_SOURCES main.cpp pte.cpp mmu.cpp pagers.cpp)
 
 add_executable(mmu ${mmu_SOURCES})

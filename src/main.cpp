@@ -8,6 +8,8 @@
 
 #include "loglib.h"
 #include "random_gen.h"
+#include "pte.h"
+#include "mmu.h"
 
 #define NUM_PAGES (64)
 
