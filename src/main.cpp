@@ -3,11 +3,14 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
 #include "loglib.h"
 #include "random_gen.h"
+
+#include "mmu.h"
 
 #define NUM_PAGES (64)
 
@@ -39,7 +42,7 @@ int main(int argc, char const *argv[])
   //------------ parse arguments -------------//
   try { parse_args(argc, argv); }
   catch (std::invalid_argument const& ia) {
-    std::cerr << "Error (INVALID ARGUMENT): " << ia.what() << "\n\t" << USAGE_STR << '\n';
+    cerr << "Error (INVALID ARGUMENT): " << ia.what() << "\n\t" << USAGE_STR << '\n';
     exit(1); }
 
   // open file for logging
@@ -48,6 +51,10 @@ int main(int argc, char const *argv[])
   //----------- set up random generator ------//
   {
     ifstream inrandom(PARAMS::randomfile);
+    if( !inrandom ) {
+      cerr << "Error: could not open random file" << "\n\t" << USAGE_STR << '\n';
+      exit(2);
+    }
     int numbers;
     inrandom >> numbers;
 
@@ -56,10 +63,58 @@ int main(int argc, char const *argv[])
     rnd::looping_random_iterator<std::vector<int> >::set_container(std::move(rvec));
   }
 
+  //----- build MMU, mem-table, fault-handler, and pager -----//
+  mms::mmu *mmu;
+  mms::page_fault_handler *fault_handler;
+  {
+    /*
+    mmu::set_num_pages(32);
+    mmu::set_num_frames(PARAMS::num_frames);
+    */
+  }
+
+  //------------ set up input stream ---------//
+  {
+    ifstream infile(PARAMS::inputfile);
+    if( !infile ) {
+      cerr << "Error: could not open input file" << "\n\t" << USAGE_STR << '\n';
+      exit(2);
+    }
+    string line;
+    while( std::getline(infile, line) ) {
+      if( line[0] == '#')
+        continue;
+      stringstream linestream(line);
+      int access_type, page_num;
+      linestream >> access_type >> page_num;
+
+      mms::mmu::access_instruction instr = (access_type == 0) 
+        ? mms::mmu::READ
+        : mms::mmu::WRITE;
+      mms::page_t page = page_num;
+
+      mms::frame_t frame = mmu->access_page(instr, page);
+
+      if( mmu->page_fault() ) {
+        fault_handler->page_fault(page);
+        mmu->clear_fault();
+        mmu->access_page(instr, page);
+
+        if( mmu->page_fault() ) {
+          // kill process?
+          cerr << "Error: failed to bring in page " << page << '\n';
+          exit(4);
+        }
+      }
+
+      cout << "accessed (page, frame): " << page << " " << frame << endl;
+    }
+  }
+
   cout << "done" << endl;
 }
 
-// end: MAIN ===========================================//
+// end: MAIN -------------------------------------------//
 
 void parse_args(int argc, char const *argv[]) {
   if( argc <= 2 )
