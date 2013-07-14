@@ -10,7 +10,10 @@
 #include "loglib.h"
 #include "random_gen.h"
 
+#include "mms.h"
 #include "mmu.h"
+#include "pagers.h"
+#include "fault_handler.h"
 
 #define NUM_PAGES (64)
 
@@ -67,10 +70,14 @@ int main(int argc, char const *argv[])
   mms::mmu *mmu;
   mms::page_fault_handler *fault_handler;
   {
-    /*
-    mmu::set_num_pages(32);
-    mmu::set_num_frames(PARAMS::num_frames);
-    */
+    unsigned int num_pages = 32;
+    mms::mmu_with_vector_page_table * mmu_pt = new mms::mmu_with_vector_page_table(num_pages);
+
+    mms::pager * pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);
+
+    fault_handler = new mms::fault_handler_with_pager( mmu_pt, pager );
+
+    mmu = mmu_pt;
   }
 
   //------------ set up input stream ---------//
@@ -91,16 +98,21 @@ int main(int argc, char const *argv[])
       mms::mmu::access_instruction instr = (access_type == 0) 
         ? mms::mmu::READ
         : mms::mmu::WRITE;
-      mms::page_t page = page_num;
+      mms::indx_t page = page_num;
 
-      mms::frame_t frame = mmu->access_page(instr, page);
+      mms::indx_t frame = mmu->access_page(instr, page);
 
-      if( mmu->page_fault() ) {
+      if( mmu->page_fault() )
+      {
+        cout << "faulted" << endl;
+        mmu->clear_fault();
+
         fault_handler->page_fault(page);
         mmu->clear_fault();
-        mmu->access_page(instr, page);
+        frame = mmu->access_page(instr, page);
 
-        if( mmu->page_fault() ) {
+        if( mmu->page_fault() )
+        {
           // kill process?
           cerr << "Error: failed to bring in page " << page << '\n';
           exit(4);

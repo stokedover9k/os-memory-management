@@ -18,6 +18,8 @@ namespace rnd
   //=========================================================//
     inline int next(int cap) { 
       return RandomNumberIteratorPolicy::next() % cap; }
+    inline int operator()(int cap) {
+      return next(cap); }
   }; // end: random_generator -------------------------------//
 
   //============== looping_random_iterator ==================//

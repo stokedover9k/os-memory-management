@@ -1,67 +1,50 @@
 #ifndef __MMU_H__
 #define __MMU_H__
 
-/**
-  * This file contains interfaces of classes used in the
-  * Memory Management System (mms) namespace.
-  */
+#include <vector>
+#include <cassert>
 
-#include <cstdint>
-
-#include "pte.h"
+#include "mms.h"
 
 namespace mms
 {
 
-  typedef uint32_t frame_t;
-  typedef uint32_t page_t;
-
-
-  //==========//
-  struct mmu  //
-  //==========//
+  //==============================//
+  struct vector_page_table        //
+  //------------------------------//
+    : public page_table,          //
+      private std::vector<indx_t> //
+  //==============================//
   {
-    enum access_instruction { READ, WRITE };
+    vector_page_table(unsigned int num_pages);
 
-    virtual frame_t access_page(access_instruction, page_t) = 0;
-    virtual bool page_fault() = 0;
-    virtual void clear_fault() = 0;
-  }; // end: mmu
+    void raise_properties(indx_t page_indx, pte_t property_bits);
+    void unset_properties(indx_t page_indx, pte_t property_bits);
+    uint32_t get_page_properties(indx_t page_indx) const;
+    uint32_t get_page_frame(indx_t page_indx) const;
+    void     set_page_frame(indx_t page_indx, indx_t frame_indx);
+
+  }; //--vector_page_table--------//
 
 
-  //=====================//
-  struct mmu_controller  //
-  //=====================//
+
+  //=================================//
+  struct mmu_with_vector_page_table  //
+  //---------------------------------//
+    : public mmu,                    //
+      public vector_page_table       //
+  //=================================//
   {
-    virtual void map_page(page_t, frame_t) = 0;
-    virtual void unmap_page(page_t, frame_t) = 0;
-  }; // end: mmu_controller
+    mmu_with_vector_page_table(unsigned int num_pages);
 
+    // mmu interface
+    indx_t access_page(access_instruction, indx_t);
+    bool page_fault();
+    void clear_fault();
 
-  //=================//
-  struct page_table  //
-  //=================//
-  {
-    virtual uint32_t get_page_properties(page_t page_indx) = 0;
-    virtual uint32_t get_page_frame(page_t page_indx) = 0;
-  }; // end: page_table
-
-
-  //=========================//
-  struct page_fault_handler  //
-  //=========================//
-  {
-    virtual void page_fault(page_t page_indx) = 0;
-  }; // end: page_fault_handler
-
-
-  //============//
-  struct pager  //
-  //============//
-  {
-
-  }; // end: pager
-
+  private:
+    bool faulted;
+  }; //--mmu_with_vector_page_table--//
 };
 
 #endif //__MMU_H__
