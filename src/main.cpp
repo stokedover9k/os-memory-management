@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "loglib.h"
+#include "output.h"
 #include "random_gen.h"
 
 #include "mms.h"
@@ -17,18 +18,19 @@
 
 #define NUM_PAGES (64)
 
+#ifndef PRINT_INFO
+#define PRINT_INFO (true)
+#endif
+
+#ifndef PRINT_DEBUG
+#define PRINT_DEBUG (true)
+#endif
+
 char const * const USAGE_STR = "Usage: ./mmu [-a<algo>] [-o<options>] [–f<num_frames>] inputfile randomfile";
 
 namespace PARAMS
 {
-  enum {
-    OPERATIONS   = 1 << 0,
-    FINAL_PAGES  = 1 << 1,
-    FINAL_FRAMES = 1 << 2,
-    SUMMARY      = 1 << 3 };
-
   static char algo = 'l';
-  static char output = OPERATIONS | FINAL_PAGES | FINAL_FRAMES | SUMMARY;
   static unsigned int num_frames = 32;
   static char const * inputfile = NULL;
   static char const * randomfile = NULL;
@@ -41,6 +43,20 @@ void parse_args(int argc, char const *argv[]);
 int main(int argc, char const *argv[])
 {
   using namespace std;
+
+  OutputToFile::Stream() = stdout;
+  Printer<OutputToFile>::ReportingMode() = OPERATIONS|FINAL_PAGES|FINAL_FRAMES|SUMMARY;
+  if( PRINT_INFO )  Printer<OutputToFile>::ReportingMode() |= INFO;
+  if( PRINT_DEBUG ) Printer<OutputToFile>::ReportingMode() |= DEBUG;
+
+  /* Use like this:
+  OUT(OPERATIONS) << "O";
+  OUT(FINAL_PAGES) << "P";
+  OUT(FINAL_FRAMES) << "F";
+  OUT(SUMMARY) << "S";
+  OUT(INFO) << "I";
+  OUT(DEBUG) << "D";
+  */
 
   //------------ parse arguments -------------//
   try { parse_args(argc, argv); }
@@ -149,13 +165,13 @@ void parse_args(int argc, char const *argv[]) {
         PARAMS::algo = arg[2];
         break;
       case 'o':
-        PARAMS::output = 0;
+        Printer<OutputToFile>::ReportingMode() &= ~(OPERATIONS|FINAL_PAGES|FINAL_FRAMES|SUMMARY);
         for (unsigned int j = 2; j < arg.length(); ++j)
           switch( arg[j] ) {
-            case 'O':  PARAMS::output |= PARAMS::OPERATIONS;    break;
-            case 'P':  PARAMS::output |= PARAMS::FINAL_PAGES;   break;
-            case 'F':  PARAMS::output |= PARAMS::FINAL_FRAMES;  break;
-            case 'S':  PARAMS::output |= PARAMS::SUMMARY;       break;
+            case 'O':  Printer<OutputToFile>::ReportingMode() |= OPERATIONS;    break;
+            case 'P':  Printer<OutputToFile>::ReportingMode() |= FINAL_PAGES;   break;
+            case 'F':  Printer<OutputToFile>::ReportingMode() |= FINAL_FRAMES;  break;
+            case 'S':  Printer<OutputToFile>::ReportingMode() |= SUMMARY;       break;
             default: throw std::invalid_argument(arg + " unknown option " + arg[j]);
           }
         break;
