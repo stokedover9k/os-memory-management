@@ -19,11 +19,11 @@
 #define NUM_PAGES (64)
 
 #ifndef PRINT_INFO
-#define PRINT_INFO (true)
+#define PRINT_INFO (false)
 #endif
 
 #ifndef PRINT_DEBUG
-#define PRINT_DEBUG (true)
+#define PRINT_DEBUG (false)
 #endif
 
 char const * const USAGE_STR = "Usage: ./mmu [-a<algo>] [-o<options>] [–f<num_frames>] inputfile randomfile";
@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
   using namespace std;
 
   OutputToFile::Stream() = stdout;
-  Printer<OutputToFile>::ReportingMode() = OPERATIONS|FINAL_PAGES|FINAL_FRAMES|SUMMARY;
+  Printer<OutputToFile>::ReportingMode() = OPERATIONS|INSTRUCTION|FINAL_PAGES|FINAL_FRAMES|SUMMARY;
   if( PRINT_INFO )  Printer<OutputToFile>::ReportingMode() |= INFO;
   if( PRINT_DEBUG ) Printer<OutputToFile>::ReportingMode() |= DEBUG;
 
@@ -86,8 +86,7 @@ int main(int argc, char const *argv[])
   mms::mmu *mmu;
   mms::page_fault_handler *fault_handler;
   {
-    unsigned int num_pages = 32;
-    mms::mmu_with_vector_page_table * mmu_pt = new mms::mmu_with_vector_page_table(num_pages);
+    mms::mmu_with_vector_page_table * mmu_pt = new mms::mmu_with_vector_page_table(NUM_PAGES);
 
     mms::pager * pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);
 
@@ -111,21 +110,23 @@ int main(int argc, char const *argv[])
       int access_type, page_num;
       linestream >> access_type >> page_num;
 
+      OUT(INSTRUCTION) << access_type << ' ' << page_num;
+
       mms::mmu::access_instruction instr = (access_type == 0) 
         ? mms::mmu::READ
         : mms::mmu::WRITE;
       mms::indx_t page = page_num;
 
-      mms::indx_t frame = mmu->access_page(instr, page);
+      mmu->access_page(instr, page);
 
       if( mmu->page_fault() )
       {
-        cout << "faulted" << endl;
+        OUT(INFO) << "faulted";
         mmu->clear_fault();
 
         fault_handler->page_fault(page);
         mmu->clear_fault();
-        frame = mmu->access_page(instr, page);
+        mmu->access_page(instr, page);
 
         if( mmu->page_fault() )
         {
@@ -134,12 +135,8 @@ int main(int argc, char const *argv[])
           exit(4);
         }
       }
-
-      cout << "accessed (page, frame): " << page << " " << frame << endl;
     }
   }
-
-  cout << "done" << endl;
 }
 
 // end: MAIN -------------------------------------------//
@@ -154,7 +151,7 @@ void parse_args(int argc, char const *argv[]) {
   {
     std::string arg( argv[i] );
 
-    std::cout << i << " = " << arg << std::endl;
+    OUT(DEBUG) << i << " = " << arg;
 
     if( arg.length() < 3 || arg[0] != '-' )
       throw std::invalid_argument(arg);
@@ -168,7 +165,7 @@ void parse_args(int argc, char const *argv[]) {
         Printer<OutputToFile>::ReportingMode() &= ~(OPERATIONS|FINAL_PAGES|FINAL_FRAMES|SUMMARY);
         for (unsigned int j = 2; j < arg.length(); ++j)
           switch( arg[j] ) {
-            case 'O':  Printer<OutputToFile>::ReportingMode() |= OPERATIONS;    break;
+            case 'O':  Printer<OutputToFile>::ReportingMode() |= OPERATIONS|INSTRUCTION;    break;
             case 'P':  Printer<OutputToFile>::ReportingMode() |= FINAL_PAGES;   break;
             case 'F':  Printer<OutputToFile>::ReportingMode() |= FINAL_FRAMES;  break;
             case 'S':  Printer<OutputToFile>::ReportingMode() |= SUMMARY;       break;

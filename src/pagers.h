@@ -1,10 +1,11 @@
 #ifndef __PAGERS_H__
 #define __PAGERS_H__
 
+#include <iomanip>
 #include <list>
 #include <map>
 
-#include "loglib.h"
+#include "output.h"
 #include "random_gen.h"
 
 #include "mmu.h"

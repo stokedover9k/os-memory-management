@@ -9,12 +9,13 @@
 enum OutputMode
 {
   OPERATIONS   = 1 << 0,
-  FINAL_PAGES  = 1 << 1,
-  FINAL_FRAMES = 1 << 2,
-  SUMMARY      = 1 << 3,
+  INSTRUCTION  = 1 << 1,
+  FINAL_PAGES  = 1 << 2,
+  FINAL_FRAMES = 1 << 3,
+  SUMMARY      = 1 << 4,
 
-  INFO         = 1 << 4,
-  DEBUG        = 1 << 5
+  INFO         = 1 << 5,
+  DEBUG        = 1 << 6
 };
 
 ////////////////////////////////////////////
@@ -27,6 +28,7 @@ struct Printer
   std::ostringstream& Get(OutputMode mode);
 
   static unsigned int& ReportingMode();
+  static long& InstructionCount();
 
 protected:
   std::ostringstream os;
@@ -41,6 +43,12 @@ Printer<OutputPolicy>::~Printer() {
 
 template <typename OutputPolicy>
 std::ostringstream& Printer<OutputPolicy>::Get(OutputMode mode) {
+  if( mode == INSTRUCTION ) {
+    InstructionCount()++;
+    os << "==> inst: ";
+  }
+  if( mode == OPERATIONS )
+    os << InstructionCount() << ": ";
   return os;
 }
 
@@ -48,6 +56,12 @@ template <typename OutputPolicy>
 unsigned int & Printer<OutputPolicy>::ReportingMode() {
   static unsigned int _reporting_mode = 0;
   return _reporting_mode;
+}
+
+template <typename OutputPolicy>
+long & Printer<OutputPolicy>::InstructionCount() {
+  static long _instruction_count = -1;
+  return _instruction_count;
 }
 
 ////////////////////////////////////////////

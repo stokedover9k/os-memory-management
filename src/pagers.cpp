@@ -13,7 +13,7 @@ mms::indx_t mms::pager_with_free_list::get_next_frame(mms::indx_t page) {
   if( free_list.empty() )
   {
     indx_t evict_page = next_to_evict();
-    TLOG << "chose to evict " << evict_page << " (" << bits_to_string(page_table_->get_page_properties(evict_page)) << ')';
+    OUT(INFO) << "evict " << evict_page << " (" << bits_to_string(page_table_->get_page_properties(evict_page)) << ')';
     uint32_t frame = page_table_->get_page_frame(evict_page);
 
     free_page( evict_page, frame );
@@ -34,7 +34,7 @@ mms::indx_t mms::pager_with_free_list::get_next_frame(mms::indx_t page) {
 
 void mms::pager_with_free_list::free_page( mms::indx_t page, mms::indx_t frame )
 {
-  TLOG << "UNMAP \t" << page << ' ' << frame;
+  OUT(OPERATIONS) << "UNMAP \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->unset_properties( page, PRESENT );
   uint32_t bits = page_table_->get_page_properties( page );
 
@@ -58,26 +58,26 @@ void mms::pager_with_free_list::load_page( mms::indx_t page, mms::indx_t frame )
   }
 
   page_table_->set_page_frame( page, frame );
-  TLOG << "MAP \t" << page << ' ' << frame;
+  OUT(OPERATIONS) << "MAP \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->raise_properties( page, PRESENT );
 }
 
 void mms::pager_with_free_list::pageout( mms::indx_t page, mms::indx_t frame )
 {
-  TLOG << "OUT \t" << page << ' ' << frame;
+  OUT(OPERATIONS) << "OUT \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->unset_properties( page, MODIFIED );
   page_table_->raise_properties( page, PAGEDOUT );
 }
 
 void mms::pager_with_free_list::pagein( mms::indx_t page, mms::indx_t frame )
 {
-  TLOG << "IN \t" << page << ' ' << frame;
+  OUT(OPERATIONS) << "IN \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->unset_properties( page, MODIFIED );
 }
 
 void mms::pager_with_free_list::zero( mms::indx_t page, mms::indx_t frame )
 {
-  TLOG << "ZERO \t" << page << ' ' << frame;
+  OUT(OPERATIONS) << "ZERO \t" << std::setw(4) << frame;
   page_table_->unset_properties( page, MODIFIED );
 }
 
