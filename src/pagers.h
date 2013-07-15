@@ -3,7 +3,9 @@
 
 #include <iomanip>
 #include <list>
+#include <set>
 #include <map>
+#include <unordered_map>
 
 #include "output.h"
 #include "random_gen.h"
@@ -44,10 +46,27 @@ namespace mms
 
 
   //===============================//
-  struct pager_random              //
+  struct pager_with_frame_table    //
   //-------------------------------//
     : public pager_with_free_list  //
   //===============================//
+  {
+    pager_with_frame_table(uint32_t num_frames, page_table *);
+
+    virtual void after_free_page( indx_t page, indx_t frame );
+    virtual void after_load_page( indx_t page, indx_t frame );
+
+  private:
+    std::unordered_map<indx_t, indx_t> frame_table;
+  }; //--pager_with_frame_table----//
+
+
+
+  //=================================//
+  struct pager_random                //
+  //---------------------------------//
+    : public pager_with_frame_table  //
+  //=================================//
   {
     pager_random(uint32_t num_frames, page_table *);
 
@@ -57,8 +76,27 @@ namespace mms
     virtual void after_load_page( indx_t page, indx_t frame );
 
   private:
+    std::set<indx_t> used_frames;
+  }; //--pager_random----------------//
+
+
+
+  //=================================//
+  struct pager_fifo                  //
+  //---------------------------------//
+    : public pager_with_frame_table  //
+  //=================================//
+  {
+    pager_fifo(uint32_t num_frames, page_table *);
+
+  protected:
+    virtual indx_t next_to_evict();
+    virtual void after_free_page( indx_t page, indx_t frame );
+    virtual void after_load_page( indx_t page, indx_t frame );
+
+  private:
     std::map<indx_t, indx_t> used_frames;
-  }; //--pager_random--------------//
+  }; //--pager_fifo------------------//
 
 };
 

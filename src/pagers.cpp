@@ -81,10 +81,26 @@ void mms::pager_with_free_list::zero( mms::indx_t page, mms::indx_t frame )
   page_table_->unset_properties( page, MODIFIED );
 }
 
+//=============== pager_with_frame_table ==============//
+
+mms::pager_with_frame_table::pager_with_frame_table(uint32_t num_frames, page_table * pt)
+  : pager_with_free_list(num_frames, pt)
+{ }
+
+void mms::pager_with_frame_table::after_free_page( indx_t page, indx_t frame )
+{
+  frame_table.erase(frame);
+}
+
+void mms::pager_with_frame_table::after_load_page( indx_t page, indx_t frame )
+{
+  frame_table[frame] = page;
+}
+
 //=============== pager_random ========================//
 
 mms::pager_random::pager_random(uint32_t num_frames, page_table * pt)
-  : pager_with_free_list(num_frames, pt)
+  : pager_with_frame_table(num_frames, pt)
 { }
 
 mms::indx_t mms::pager_random::next_to_evict()
@@ -94,15 +110,18 @@ mms::indx_t mms::pager_random::next_to_evict()
   {
     itr++;
   }
-  return itr->second;
+  return *itr;
 }
 
 void mms::pager_random::after_free_page( indx_t page, indx_t frame )
 {
   used_frames.erase(frame);
+  pager_with_frame_table::after_free_page(page, frame);
 }
 
 void mms::pager_random::after_load_page( indx_t page, indx_t frame )
 {
-  used_frames[frame] = page;
+  used_frames.insert(frame);
+  pager_with_frame_table::after_load_page(page, frame);
 }
+
