@@ -162,7 +162,7 @@ void parse_args(int argc, char const *argv[]) {
         PARAMS::algo = arg[2];
         break;
       case 'o':
-        Printer<OutputToFile>::ReportingMode() &= ~(OPERATIONS|FINAL_PAGES|FINAL_FRAMES|SUMMARY);
+        Printer<OutputToFile>::ReportingMode() &= ~(OPERATIONS|INSTRUCTION|FINAL_PAGES|FINAL_FRAMES|SUMMARY);
         for (unsigned int j = 2; j < arg.length(); ++j)
           switch( arg[j] ) {
             case 'O':  Printer<OutputToFile>::ReportingMode() |= OPERATIONS|INSTRUCTION;    break;
