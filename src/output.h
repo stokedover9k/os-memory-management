@@ -2,6 +2,7 @@
 #define __OUTPUT_H__
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cstdio>
 #include <cstdarg>

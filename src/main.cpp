@@ -88,7 +88,14 @@ int main(int argc, char const *argv[])
   {
     mms::mmu_with_vector_page_table * mmu_pt = new mms::mmu_with_vector_page_table(NUM_PAGES);
 
-    mms::pager * pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);
+    mms::pager * pager;
+
+    switch(PARAMS::algo)
+    {
+      case 'r':  pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);  break;
+      case 'f':  pager = new mms::pager_fifo(PARAMS::num_frames, mmu_pt);    break;
+      default:  cerr << "Error: invalid pager algorithm \"" << PARAMS::algo << '"' << endl;  exit(5);
+    }
 
     fault_handler = new mms::fault_handler_with_pager( mmu_pt, pager );
 

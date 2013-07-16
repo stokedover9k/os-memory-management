@@ -1,6 +1,8 @@
 #ifndef __PAGERS_H__
 #define __PAGERS_H__
 
+#include <sstream>
+
 #include <iomanip>
 #include <list>
 #include <set>
@@ -56,6 +58,9 @@ namespace mms
     virtual void after_free_page( indx_t page, indx_t frame );
     virtual void after_load_page( indx_t page, indx_t frame );
 
+  protected:
+    indx_t get_page(indx_t frame);
+
   private:
     std::unordered_map<indx_t, indx_t> frame_table;
   }; //--pager_with_frame_table----//
@@ -95,7 +100,7 @@ namespace mms
     virtual void after_load_page( indx_t page, indx_t frame );
 
   private:
-    std::map<indx_t, indx_t> used_frames;
+    std::list<indx_t> frames_list;
   }; //--pager_fifo------------------//
 
 };

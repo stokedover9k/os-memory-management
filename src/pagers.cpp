@@ -58,26 +58,26 @@ void mms::pager_with_free_list::load_page( mms::indx_t page, mms::indx_t frame )
   }
 
   page_table_->set_page_frame( page, frame );
-  OUT(OPERATIONS) << "MAP \t" << std::setw(4) << page << std::setw(4) << frame;
+  OUT(OPERATIONS) << "MAP   \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->raise_properties( page, PRESENT );
 }
 
 void mms::pager_with_free_list::pageout( mms::indx_t page, mms::indx_t frame )
 {
-  OUT(OPERATIONS) << "OUT \t" << std::setw(4) << page << std::setw(4) << frame;
+  OUT(OPERATIONS) << "OUT  \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->unset_properties( page, MODIFIED );
   page_table_->raise_properties( page, PAGEDOUT );
 }
 
 void mms::pager_with_free_list::pagein( mms::indx_t page, mms::indx_t frame )
 {
-  OUT(OPERATIONS) << "IN \t" << std::setw(4) << page << std::setw(4) << frame;
+  OUT(OPERATIONS) << "IN    \t" << std::setw(4) << page << std::setw(4) << frame;
   page_table_->unset_properties( page, MODIFIED );
 }
 
 void mms::pager_with_free_list::zero( mms::indx_t page, mms::indx_t frame )
 {
-  OUT(OPERATIONS) << "ZERO \t" << std::setw(4) << frame;
+  OUT(OPERATIONS) << "ZERO  \t" << std::setw(8) << frame;
   page_table_->unset_properties( page, MODIFIED );
 }
 
@@ -97,6 +97,11 @@ void mms::pager_with_frame_table::after_load_page( indx_t page, indx_t frame )
   frame_table[frame] = page;
 }
 
+mms::indx_t mms::pager_with_frame_table::get_page(indx_t frame)
+{
+  return frame_table[frame];
+}
+
 //=============== pager_random ========================//
 
 mms::pager_random::pager_random(uint32_t num_frames, page_table * pt)
@@ -110,7 +115,7 @@ mms::indx_t mms::pager_random::next_to_evict()
   {
     itr++;
   }
-  return *itr;
+  return get_page(*itr);
 }
 
 void mms::pager_random::after_free_page( indx_t page, indx_t frame )
@@ -124,4 +129,35 @@ void mms::pager_random::after_load_page( indx_t page, indx_t frame )
   used_frames.insert(frame);
   pager_with_frame_table::after_load_page(page, frame);
 }
+
+//=============== pager_fifo ===========================//
+
+mms::pager_fifo::pager_fifo(uint32_t num_frames, page_table * pt)
+  : pager_with_frame_table(num_frames, pt)
+{ }
+
+mms::indx_t mms::pager_fifo::next_to_evict()
+{
+  return get_page(frames_list.front());
+}
+
+void mms::pager_fifo::after_free_page( indx_t page, indx_t frame )
+{
+  assert( frame == frames_list.front() );
+  frames_list.pop_front();
+  pager_with_frame_table::after_free_page(page, frame);
+}
+
+void mms::pager_fifo::after_load_page( indx_t page, indx_t frame )
+{
+  frames_list.push_back(frame);
+
+  std::ostringstream ss;
+  for (auto i = frames_list.begin(); i != frames_list.end(); ++i)
+    ss << *i << ' ';
+  OUT(DEBUG) << ss.str();
+
+  pager_with_frame_table::after_load_page(page, frame);
+}
+
 
