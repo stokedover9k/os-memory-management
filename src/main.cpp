@@ -92,8 +92,9 @@ int main(int argc, char const *argv[])
 
     switch(PARAMS::algo)
     {
-      case 'r':  pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);  break;
-      case 'f':  pager = new mms::pager_fifo(PARAMS::num_frames, mmu_pt);    break;
+      case 'r':  pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);         break;
+      case 'f':  pager = new mms::pager_fifo(PARAMS::num_frames, mmu_pt);           break;
+      case 's':  pager = new mms::pager_second_chance(PARAMS::num_frames, mmu_pt);  break;
       default:  cerr << "Error: invalid pager algorithm \"" << PARAMS::algo << '"' << endl;  exit(5);
     }
 

@@ -33,6 +33,8 @@ namespace mms
     virtual void after_free_page( indx_t page, indx_t frame ) = 0;
     virtual void after_load_page( indx_t page, indx_t frame ) = 0;
 
+    page_table * const page_table_;
+
   private:
     void free_page( indx_t page, indx_t frame );
     void load_page( indx_t page, indx_t frame );
@@ -41,7 +43,6 @@ namespace mms
     void pagein( indx_t page, indx_t frame );
     void zero( indx_t page, indx_t frame );
 
-    page_table * const page_table_;
     std::list<indx_t> free_list;
   }; //--pager_with_free_list--//
 
@@ -99,9 +100,22 @@ namespace mms
     virtual void after_free_page( indx_t page, indx_t frame );
     virtual void after_load_page( indx_t page, indx_t frame );
 
-  private:
     std::list<indx_t> frames_list;
   }; //--pager_fifo------------------//
+
+
+
+  //=================================//
+  struct pager_second_chance         //
+  //---------------------------------//
+    : public pager_fifo              //
+  //=================================//
+  {
+    pager_second_chance(uint32_t num_frames, page_table *);
+
+  protected:
+    virtual indx_t next_to_evict();
+  }; //--pager_second_chance---------//
 
 };
 
