@@ -35,6 +35,7 @@ mms::indx_t mms::pager_with_free_list::get_next_frame(mms::indx_t page) {
 void mms::pager_with_free_list::free_page( mms::indx_t page, mms::indx_t frame )
 {
   OUT(OPERATIONS) << "UNMAP \t" << std::setw(4) << page << std::setw(4) << frame;
+  stat_unmap()++;
   page_table_->unset_properties( page, PRESENT );
   uint32_t bits = page_table_->get_page_properties( page );
 
@@ -59,12 +60,14 @@ void mms::pager_with_free_list::load_page( mms::indx_t page, mms::indx_t frame )
 
   page_table_->set_page_frame( page, frame );
   OUT(OPERATIONS) << "MAP   \t" << std::setw(4) << page << std::setw(4) << frame;
+  stat_map()++;
   page_table_->raise_properties( page, PRESENT );
 }
 
 void mms::pager_with_free_list::pageout( mms::indx_t page, mms::indx_t frame )
 {
   OUT(OPERATIONS) << "OUT  \t" << std::setw(4) << page << std::setw(4) << frame;
+  stat_out()++;
   page_table_->unset_properties( page, MODIFIED );
   page_table_->raise_properties( page, PAGEDOUT );
 }
@@ -72,12 +75,14 @@ void mms::pager_with_free_list::pageout( mms::indx_t page, mms::indx_t frame )
 void mms::pager_with_free_list::pagein( mms::indx_t page, mms::indx_t frame )
 {
   OUT(OPERATIONS) << "IN    \t" << std::setw(4) << page << std::setw(4) << frame;
+  stat_in()++;
   page_table_->unset_properties( page, MODIFIED );
 }
 
 void mms::pager_with_free_list::zero( mms::indx_t page, mms::indx_t frame )
 {
   OUT(OPERATIONS) << "ZERO  \t" << std::setw(8) << frame;
+  stat_zero()++;
   page_table_->unset_properties( page, MODIFIED );
 }
 

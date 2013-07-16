@@ -50,6 +50,12 @@ namespace mms
   //============//
   {
     virtual indx_t get_next_frame(indx_t page_indx) = 0;
+
+    inline static uint32_t & stat_map()   { static uint32_t  __map__  = 0;  return  __map__;  }
+    inline static uint32_t & stat_unmap() { static uint32_t __unmap__ = 0;  return __unmap__; }
+    inline static uint32_t & stat_out()   { static uint32_t  __out__  = 0;  return  __out__;  }
+    inline static uint32_t & stat_in()    { static uint32_t   __in__  = 0;  return   __in__;  }
+    inline static uint32_t & stat_zero()  { static uint32_t  __zero__ = 0;  return  __zero__; }
   }; // end: pager
 
 };

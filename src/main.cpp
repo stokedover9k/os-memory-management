@@ -39,6 +39,7 @@ namespace PARAMS
 void parse_args(int argc, char const *argv[]);
 std::string final_pages(mms::page_table *);
 std::string final_frames(mms::page_table *);
+std::string summary();
 
 //===================== MAIN ===========================//
 
@@ -47,9 +48,9 @@ int main(int argc, char const *argv[])
   using namespace std;
 
   OutputToFile::Stream() = stdout;
-  Printer<OutputToFile>::ReportingMode() = OPERATIONS|INSTRUCTION|FINAL_PAGES|FINAL_FRAMES|SUMMARY;
-  if( PRINT_INFO )  Printer<OutputToFile>::ReportingMode() |= INFO;
-  if( PRINT_DEBUG ) Printer<OutputToFile>::ReportingMode() |= DEBUG;
+  OutFilePrinter::ReportingMode() = OPERATIONS|INSTRUCTION|FINAL_PAGES|FINAL_FRAMES|SUMMARY;
+  if( PRINT_INFO )  OutFilePrinter::ReportingMode() |= INFO;
+  if( PRINT_DEBUG ) OutFilePrinter::ReportingMode() |= DEBUG;
 
   /* Use like this:
   OUT(OPERATIONS) << "O";
@@ -88,10 +89,9 @@ int main(int argc, char const *argv[])
   mms::mmu *mmu;
   mms::page_table *pt;
   mms::page_fault_handler *fault_handler;
+  mms::pager *pager;
   {
     mms::mmu_with_vector_page_table * mmu_pt = new mms::mmu_with_vector_page_table(NUM_PAGES);
-
-    mms::pager * pager;
 
     switch(PARAMS::algo)
     {
@@ -152,6 +152,7 @@ int main(int argc, char const *argv[])
 
   OUT(FINAL_PAGES) << final_pages(pt);
   OUT(FINAL_FRAMES) << final_frames(pt);
+  OUT(SUMMARY) << summary();
 }
 
 // end: MAIN -------------------------------------------//
@@ -177,13 +178,13 @@ void parse_args(int argc, char const *argv[]) {
         PARAMS::algo = arg[2];
         break;
       case 'o':
-        Printer<OutputToFile>::ReportingMode() &= ~(OPERATIONS|INSTRUCTION|FINAL_PAGES|FINAL_FRAMES|SUMMARY);
+        OutFilePrinter::ReportingMode() &= ~(OPERATIONS|INSTRUCTION|FINAL_PAGES|FINAL_FRAMES|SUMMARY);
         for (unsigned int j = 2; j < arg.length(); ++j)
           switch( arg[j] ) {
-            case 'O':  Printer<OutputToFile>::ReportingMode() |= OPERATIONS|INSTRUCTION;    break;
-            case 'P':  Printer<OutputToFile>::ReportingMode() |= FINAL_PAGES;   break;
-            case 'F':  Printer<OutputToFile>::ReportingMode() |= FINAL_FRAMES;  break;
-            case 'S':  Printer<OutputToFile>::ReportingMode() |= SUMMARY;       break;
+            case 'O':  OutFilePrinter::ReportingMode() |= OPERATIONS|INSTRUCTION;    break;
+            case 'P':  OutFilePrinter::ReportingMode() |= FINAL_PAGES;   break;
+            case 'F':  OutFilePrinter::ReportingMode() |= FINAL_FRAMES;  break;
+            case 'S':  OutFilePrinter::ReportingMode() |= SUMMARY;       break;
             default: throw std::invalid_argument(arg + " unknown option " + arg[j]);
           }
         break;
@@ -229,5 +230,24 @@ std::string final_frames(mms::page_table *pt)
     else
       os << *i << ' ';
   }
+  return os.str();
+}
+
+std::string summary()
+{
+  std::ostringstream os;
+  uint64_t total
+    = 400  * (mms::pager::stat_map() + mms::pager::stat_unmap())
+    + 3000 * (mms::pager::stat_in() + mms::pager::stat_out())
+    + 150  * (mms::pager::stat_zero())
+    + 1    * (OutFilePrinter::InstructionCount() + 1);
+  os << "SUM "
+     << OutFilePrinter::InstructionCount() + 1
+     << " U=" << mms::pager::stat_unmap()
+     << " M=" << mms::pager::stat_map()
+     << " I=" << mms::pager::stat_in()
+     << " O=" << mms::pager::stat_out()
+     << " Z=" << mms::pager::stat_zero()
+     << " ===> " << total;
   return os.str();
 }

@@ -85,8 +85,10 @@ struct OutputToFile
 
 /////////////////////////////////////////////
 
+typedef Printer<OutputToFile> OutFilePrinter;
+
 #define OUT(mode) \
-  if ( !(mode & Printer<OutputToFile>::ReportingMode()) || !OutputToFile::Stream()) ; \
-  else Printer<OutputToFile>().Get(mode)
+  if ( !(mode & OutFilePrinter::ReportingMode()) || !OutputToFile::Stream()) ; \
+  else OutFilePrinter().Get(mode)
 
 #endif //__OUTPUT_H__
