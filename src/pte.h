@@ -23,11 +23,12 @@ namespace mms
   inline bool  check_bits( pte_t  pte, pte_t pbits ) { return pte & pbits; }
 
   inline std::string bits_to_string(pte_t bits) {
-    std::string s = "PMRO";
-    if( !(bits & PRESENT) )    s[0] = '-';
+    if( !(bits & (PRESENT|PAGEDOUT)) ) return "*";
+    if( !(bits & PRESENT) ) return "#";
+    std::string s = "RMS";
+    if( !(bits & REFERENCED) ) s[0] = '-';
     if( !(bits & MODIFIED) )   s[1] = '-';
-    if( !(bits & REFERENCED) ) s[2] = '-';
-    if( !(bits & PAGEDOUT) )   s[3] = '-';
+    if( !(bits & PAGEDOUT) )   s[2] = '-';
     return s;
   }
 };

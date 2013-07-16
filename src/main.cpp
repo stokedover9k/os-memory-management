@@ -37,6 +37,7 @@ namespace PARAMS
 };
 
 void parse_args(int argc, char const *argv[]);
+std::string final_pages(mms::page_table *);
 
 //===================== MAIN ===========================//
 
@@ -84,6 +85,7 @@ int main(int argc, char const *argv[])
 
   //----- build MMU, mem-table, fault-handler, and pager -----//
   mms::mmu *mmu;
+  mms::page_table *pt;
   mms::page_fault_handler *fault_handler;
   {
     mms::mmu_with_vector_page_table * mmu_pt = new mms::mmu_with_vector_page_table(NUM_PAGES);
@@ -101,6 +103,7 @@ int main(int argc, char const *argv[])
     fault_handler = new mms::fault_handler_with_pager( mmu_pt, pager );
 
     mmu = mmu_pt;
+    pt = mmu_pt;
   }
 
   //------------ set up input stream ---------//
@@ -145,6 +148,8 @@ int main(int argc, char const *argv[])
       }
     }
   }
+
+  OUT(FINAL_PAGES) << final_pages(pt);
 }
 
 // end: MAIN -------------------------------------------//
@@ -187,4 +192,18 @@ void parse_args(int argc, char const *argv[]) {
       default: throw std::invalid_argument(arg);
     }
   }
+}
+
+std::string final_pages(mms::page_table *pt)
+{
+  std::ostringstream os;
+  for (int i = 0; i < NUM_PAGES; ++i)
+  {
+    std::string page = mms::bits_to_string(pt->get_page_properties(i));
+    if( page.length() > 1 )
+      os << i << ':' << page << ' ';
+    else
+      os << page << ' ';
+  }
+  return os.str();
 }
