@@ -38,6 +38,7 @@ namespace PARAMS
 
 void parse_args(int argc, char const *argv[]);
 std::string final_pages(mms::page_table *);
+std::string final_frames(mms::page_table *);
 
 //===================== MAIN ===========================//
 
@@ -150,6 +151,7 @@ int main(int argc, char const *argv[])
   }
 
   OUT(FINAL_PAGES) << final_pages(pt);
+  OUT(FINAL_FRAMES) << final_frames(pt);
 }
 
 // end: MAIN -------------------------------------------//
@@ -204,6 +206,28 @@ std::string final_pages(mms::page_table *pt)
       os << i << ':' << page << ' ';
     else
       os << page << ' ';
+  }
+  return os.str();
+}
+
+std::string final_frames(mms::page_table *pt)
+{
+  std::vector<int> frames_to_pages(PARAMS::num_frames, -1);
+  for (int i = 0; i < NUM_PAGES; ++i)
+  {
+    if( pt->get_page_properties(i) & mms::PRESENT )
+    {
+      mms::indx_t frame = pt->get_page_frame(i);
+      frames_to_pages[frame] = i;
+    }
+  }
+  std::ostringstream os;
+  for (std::vector<int>::iterator i = frames_to_pages.begin(); i != frames_to_pages.end(); ++i)
+  {
+    if( *i == -1 )
+      os << "* ";
+    else
+      os << *i << ' ';
   }
   return os.str();
 }
