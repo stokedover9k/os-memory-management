@@ -9,6 +9,7 @@ trace.log
 
 # Build and Setup directories
 build/
+Build/
 CMakeFiles/
 
 # Extra test data

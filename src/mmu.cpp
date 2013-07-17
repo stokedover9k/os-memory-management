@@ -18,12 +18,12 @@ void mms::vector_page_table::unset_properties(indx_t page_indx, pte_t bits)
   unset_bits( &at(page_indx), bits );
 }
 
-uint32_t mms::vector_page_table::get_page_properties(indx_t page_indx) const
+char32_t mms::vector_page_table::get_page_properties(indx_t page_indx) const
 {
   return at(page_indx) & PROPERTIES_MASK;
 }
 
-uint32_t mms::vector_page_table::get_page_frame(indx_t page_indx) const
+char32_t mms::vector_page_table::get_page_frame(indx_t page_indx) const
 {
   return at(page_indx) & INDEX_MASK;
 }
@@ -43,8 +43,8 @@ mms::mmu_with_vector_page_table::mmu_with_vector_page_table(unsigned int size)
 
 mms::indx_t mms::mmu_with_vector_page_table::access_page(access_instruction instr, indx_t page)
 {
-  uint32_t frame = get_page_frame(page);
-  uint32_t bits = get_page_properties(page);
+  char32_t frame = get_page_frame(page);
+  char32_t bits = get_page_properties(page);
 
   if( ! (bits & PRESENT) )
   {
