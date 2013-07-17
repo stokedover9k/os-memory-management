@@ -2,7 +2,7 @@
 
 //=============== pager_with_frame_table ==============//
 
-mms::pager_with_frame_table::pager_with_frame_table(uint32_t num_frames, page_table * pt)
+mms::pager_with_frame_table::pager_with_frame_table(char32_t num_frames, page_table * pt)
   : pager_with_free_list(num_frames, pt)
 { }
 

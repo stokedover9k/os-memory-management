@@ -19,7 +19,7 @@ namespace mms
     : public pager             //
   //===========================//
   {
-    pager_with_free_list(uint32_t num_frames, page_table *);
+    pager_with_free_list(char32_t num_frames, page_table *);
 
     indx_t get_next_frame(indx_t page_indx);
 

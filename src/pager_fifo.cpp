@@ -2,7 +2,7 @@
 
 //=============== pager_fifo ===========================//
 
-mms::pager_fifo::pager_fifo(uint32_t num_frames, page_table * pt)
+mms::pager_fifo::pager_fifo(char32_t num_frames, page_table * pt)
   : pager_with_frame_table(num_frames, pt)
 { }
 

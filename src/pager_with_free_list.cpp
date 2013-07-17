@@ -2,7 +2,7 @@
 
 //================= pager_with_free_list ==================//
 
-mms::pager_with_free_list::pager_with_free_list(uint32_t num_frames, mms::page_table * pt)
+mms::pager_with_free_list::pager_with_free_list(char32_t num_frames, mms::page_table * pt)
   : page_table_(pt)
 {
   for( unsigned int i = 0; i < num_frames; ++i )
@@ -14,7 +14,7 @@ mms::indx_t mms::pager_with_free_list::get_next_frame(mms::indx_t page) {
   {
     indx_t evict_page = next_to_evict();
     OUT(INFO) << "evict " << evict_page << " (" << bits_to_string(page_table_->get_page_properties(evict_page)) << ')';
-    uint32_t frame = page_table_->get_page_frame(evict_page);
+    char32_t frame = page_table_->get_page_frame(evict_page);
 
     free_page( evict_page, frame );
     after_free_page( evict_page, frame );
@@ -37,7 +37,7 @@ void mms::pager_with_free_list::free_page( mms::indx_t page, mms::indx_t frame )
   OUT(OPERATIONS) << "UNMAP \t" << std::setw(4) << page << std::setw(4) << frame;
   stat_unmap()++;
   page_table_->unset_properties( page, PRESENT );
-  uint32_t bits = page_table_->get_page_properties( page );
+  char32_t bits = page_table_->get_page_properties( page );
 
   if( bits & MODIFIED )
   {
@@ -47,7 +47,7 @@ void mms::pager_with_free_list::free_page( mms::indx_t page, mms::indx_t frame )
 
 void mms::pager_with_free_list::load_page( mms::indx_t page, mms::indx_t frame )
 {
-  uint32_t bits = page_table_->get_page_properties( page );
+  char32_t bits = page_table_->get_page_properties( page );
 
   if( bits & PAGEDOUT )
   {

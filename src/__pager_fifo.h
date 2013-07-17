@@ -11,7 +11,7 @@ namespace mms
     : public pager_with_frame_table  //
   //=================================//
   {
-    pager_fifo(uint32_t num_frames, page_table *);
+    pager_fifo(char32_t num_frames, page_table *);
 
   protected:
     virtual indx_t next_to_evict();

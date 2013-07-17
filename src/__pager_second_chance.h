@@ -12,7 +12,7 @@ namespace mms
     : public pager_fifo              //
   //=================================//
   {
-    pager_second_chance(uint32_t num_frames, page_table *);
+    pager_second_chance(char32_t num_frames, page_table *);
 
   protected:
     virtual indx_t next_to_evict();

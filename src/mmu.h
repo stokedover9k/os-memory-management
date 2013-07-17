@@ -20,8 +20,8 @@ namespace mms
 
     void raise_properties(indx_t page_indx, pte_t property_bits);
     void unset_properties(indx_t page_indx, pte_t property_bits);
-    uint32_t get_page_properties(indx_t page_indx) const;
-    uint32_t get_page_frame(indx_t page_indx) const;
+    char32_t get_page_properties(indx_t page_indx) const;
+    char32_t get_page_frame(indx_t page_indx) const;
     void     set_page_frame(indx_t page_indx, indx_t frame_indx);
 
   }; //--vector_page_table--------//

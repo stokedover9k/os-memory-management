@@ -2,7 +2,7 @@
 
 //=============== pager_random ========================//
 
-mms::pager_random::pager_random(uint32_t num_frames, page_table * pt)
+mms::pager_random::pager_random(char32_t num_frames, page_table * pt)
   : pager_with_frame_table(num_frames, pt)
 { }
 

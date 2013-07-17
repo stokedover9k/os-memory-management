@@ -6,7 +6,7 @@
 
 namespace mms
 {
-  typedef uint32_t pte_t;
+  typedef char32_t pte_t;
 
   enum pte_bits {
     PRESENT    = 1 << 31,
