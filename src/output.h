@@ -16,7 +16,9 @@ enum OutputMode
   SUMMARY      = 1 << 4,
 
   INFO         = 1 << 5,
-  DEBUG        = 1 << 6
+  DEBUG        = 1 << 6,
+
+  INSTR_PAGES  = 1 << 7
 };
 
 ////////////////////////////////////////////

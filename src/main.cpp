@@ -37,8 +37,8 @@ namespace PARAMS
 };
 
 void parse_args(int argc, char const *argv[]);
-std::string final_pages(mms::page_table *);
-std::string final_frames(mms::page_table *);
+std::string page_table_to_string(mms::page_table *);
+std::string frame_table_to_string(mms::page_table *);
 std::string summary();
 
 //===================== MAIN ===========================//
@@ -95,9 +95,11 @@ int main(int argc, char const *argv[])
 
     switch(PARAMS::algo)
     {
-      case 'r':  pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);         break;
-      case 'f':  pager = new mms::pager_fifo(PARAMS::num_frames, mmu_pt);           break;
-      case 's':  pager = new mms::pager_second_chance(PARAMS::num_frames, mmu_pt);  break;
+      case 'r':  pager = new mms::pager_random(PARAMS::num_frames, mmu_pt);              break;
+      case 'f':  pager = new mms::pager_fifo(PARAMS::num_frames, mmu_pt);                break;
+      case 's':  pager = new mms::pager_second_chance(PARAMS::num_frames, mmu_pt);       break;
+      case 'c':  pager = new mms::pager_clock_p(PARAMS::num_frames, mmu_pt);             break;
+      case 'C':  pager = new mms::pager_clock_v(PARAMS::num_frames, mmu_pt, NUM_PAGES);  break;
       default:  cerr << "Error: invalid pager algorithm \"" << PARAMS::algo << '"' << endl;  exit(5);
     }
 
@@ -147,11 +149,13 @@ int main(int argc, char const *argv[])
           exit(4);
         }
       }
+
+      OUT(INSTR_PAGES) << page_table_to_string(pt);
     }
   }
 
-  OUT(FINAL_PAGES) << final_pages(pt);
-  OUT(FINAL_FRAMES) << final_frames(pt);
+  OUT(FINAL_PAGES) << page_table_to_string(pt);
+  OUT(FINAL_FRAMES) << frame_table_to_string(pt);
   OUT(SUMMARY) << summary();
 }
 
@@ -183,6 +187,7 @@ void parse_args(int argc, char const *argv[]) {
           switch( arg[j] ) {
             case 'O':  OutFilePrinter::ReportingMode() |= OPERATIONS|INSTRUCTION;    break;
             case 'P':  OutFilePrinter::ReportingMode() |= FINAL_PAGES;   break;
+            case 'p':  OutFilePrinter::ReportingMode() |= INSTR_PAGES;   break;
             case 'F':  OutFilePrinter::ReportingMode() |= FINAL_FRAMES;  break;
             case 'S':  OutFilePrinter::ReportingMode() |= SUMMARY;       break;
             default: throw std::invalid_argument(arg + " unknown option " + arg[j]);
@@ -197,7 +202,7 @@ void parse_args(int argc, char const *argv[]) {
   }
 }
 
-std::string final_pages(mms::page_table *pt)
+std::string page_table_to_string(mms::page_table *pt)
 {
   std::ostringstream os;
   for (int i = 0; i < NUM_PAGES; ++i)
@@ -211,7 +216,7 @@ std::string final_pages(mms::page_table *pt)
   return os.str();
 }
 
-std::string final_frames(mms::page_table *pt)
+std::string frame_table_to_string(mms::page_table *pt)
 {
   std::vector<int> frames_to_pages(PARAMS::num_frames, -1);
   for (int i = 0; i < NUM_PAGES; ++i)

@@ -6,5 +6,6 @@
 #include "__pager_random.h"
 #include "__pager_fifo.h"
 #include "__pager_second_chance.h"
+#include "__pager_clock.h"
 
 #endif //__PAGERS_H__
