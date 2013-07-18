@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cassert>
+#include <functional>
 
 #include "mms.h"
 
@@ -35,15 +36,22 @@ namespace mms
       public vector_page_table       //
   //=================================//
   {
-    mmu_with_vector_page_table(unsigned int num_pages);
+    typedef std::function<void(indx_t, access_instruction)> access_signal_type;
+
+    mmu_with_vector_page_table(
+      unsigned int num_pages, 
+      access_signal_type
+        = [](indx_t page, access_instruction x){;});
 
     // mmu interface
     indx_t access_page(access_instruction, indx_t);
     bool page_fault();
     void clear_fault();
+    void set_access_signal( access_signal_type s );
 
   private:
     bool faulted;
+    access_signal_type access_signal;
   }; //--mmu_with_vector_page_table--//
 };
 

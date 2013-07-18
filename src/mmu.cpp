@@ -37,8 +37,10 @@ void mms::vector_page_table::set_page_frame(indx_t page_indx, indx_t frame_indx)
 
 //============== mmu_with_vector_page_table ==============//
 
-mms::mmu_with_vector_page_table::mmu_with_vector_page_table(unsigned int size)
-  : vector_page_table(size), faulted(false)
+mms::mmu_with_vector_page_table::mmu_with_vector_page_table(
+  unsigned int size,
+  mms::mmu_with_vector_page_table::access_signal_type func)
+  : vector_page_table(size), faulted(false), access_signal(func)
 { }
 
 mms::indx_t mms::mmu_with_vector_page_table::access_page(access_instruction instr, indx_t page)
@@ -58,6 +60,7 @@ mms::indx_t mms::mmu_with_vector_page_table::access_page(access_instruction inst
     }
 
     raise_properties(page, REFERENCED);
+    access_signal(page, instr);
   }
 
   return frame;
@@ -71,4 +74,9 @@ bool mms::mmu_with_vector_page_table::page_fault()
 void mms::mmu_with_vector_page_table::clear_fault()
 {
   faulted = false;
+}
+
+void mms::mmu_with_vector_page_table::set_access_signal( mms::mmu_with_vector_page_table::access_signal_type s )
+{
+  access_signal = s;
 }
