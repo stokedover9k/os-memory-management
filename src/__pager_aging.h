@@ -8,9 +8,12 @@
 namespace mms
 {
 
-  template <typename ParentPager>
-  struct pager_aging
-    : public ParentPager
+  //===============================//
+  template <typename ParentPager>  //
+  struct pager_aging               //
+  //-------------------------------//
+    : public ParentPager           //
+  //===============================//
   {
     pager_aging(char32_t num_frames, page_table *pt, indx_t index_count)
       : ParentPager(num_frames, pt), age_vector(index_count, 0)
@@ -49,13 +52,6 @@ namespace mms
         }
       }
 
-      std::ostringstream os;
-      for(unsigned int i = 0; i < age_vector.size(); ++i )
-      {
-        os << ' ' << i << ':' << std::hex << age_vector[i] << std::dec;
-      }
-      OUT(INSTR_FRAMES) << "||" << os.str();
-
       return min_page;
     }
 
@@ -70,7 +66,7 @@ namespace mms
 
   private:
     std::vector<char32_t> age_vector;
-  };
+  }; //--pager_aging---------------//
 
 
 
@@ -80,20 +76,11 @@ namespace mms
     : public pager_aging<pager_with_free_list>  //
   //============================================//
   {
-    pager_aging_v(char32_t num_frames, page_table *pt, char32_t num_pages)
-      : pager_aging<pager_with_free_list>(num_frames, pt, num_pages)
-    { }
+    pager_aging_v(char32_t num_frames, page_table *pt, char32_t num_pages);
 
   protected:
-    indx_t index_to_page(indx_t index)
-    {
-      return index;
-    }
-
-    indx_t page_to_index(indx_t page)
-    {
-      return page;
-    }
+    indx_t index_to_page(indx_t index);
+    indx_t page_to_index(indx_t page);
 
   }; //--pager_aging_v--------------------------//
 
@@ -105,21 +92,12 @@ namespace mms
     : public pager_aging<pager_with_frame_table>  //
   //==============================================//
   {
-    pager_aging_p(char32_t num_frames, page_table *pt)
-      : pager_aging<pager_with_frame_table>(num_frames, pt, num_frames)
-    { }
+    pager_aging_p(char32_t num_frames, page_table *pt);
 
   protected:
 
-    indx_t index_to_page(indx_t index)
-    {
-      return get_page(index);
-    }
-
-    indx_t page_to_index(indx_t page)
-    {
-      return page_table_->get_page_frame(page);
-    }
+    indx_t index_to_page(indx_t index);
+    indx_t page_to_index(indx_t page);
 
   }; //--pager_aging_v----------------------------//
 
