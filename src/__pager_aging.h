@@ -25,8 +25,8 @@ namespace mms
       for(unsigned int index = 0; index < age_vector.size(); ++index)
       {
         // index can refer to either physical frame or virtual page;
-        // get_page(...) converts that index to page value.
-        indx_t page = get_page(index);
+        // index_to_page(...) converts that index to page value.
+        indx_t page = index_to_page(index);
         char32_t bits = ParentPager::page_table_->get_page_properties(page);
 
         if( bits & PRESENT )
@@ -62,11 +62,11 @@ namespace mms
     void after_load_page( indx_t page, indx_t frame )
     {
       ParentPager::after_load_page(page, frame);
-      age_vector[get_index(page)] = 0;
+      age_vector[page_to_index(page)] = 0;
     }
 
-    virtual indx_t get_page(indx_t index) = 0;
-    virtual indx_t get_index(indx_t page) = 0;
+    virtual indx_t index_to_page(indx_t index) = 0;
+    virtual indx_t page_to_index(indx_t page) = 0;
 
   private:
     std::vector<char32_t> age_vector;
@@ -85,12 +85,12 @@ namespace mms
     { }
 
   protected:
-    indx_t get_page(indx_t index)
+    indx_t index_to_page(indx_t index)
     {
       return index;
     }
 
-    indx_t get_index(indx_t page)
+    indx_t page_to_index(indx_t page)
     {
       return page;
     }
@@ -111,12 +111,12 @@ namespace mms
 
   protected:
 
-    indx_t get_page(indx_t index)
+    indx_t index_to_page(indx_t index)
     {
       return get_page(index);
     }
 
-    indx_t get_index(indx_t page)
+    indx_t page_to_index(indx_t page)
     {
       return page_table_->get_page_frame(page);
     }
