@@ -18,7 +18,8 @@ enum OutputMode
   INFO         = 1 << 5,
   DEBUG        = 1 << 6,
 
-  INSTR_PAGES  = 1 << 7
+  INSTR_PAGES  = 1 << 7,
+  INSTR_FRAMES = 1 << 8
 };
 
 ////////////////////////////////////////////
