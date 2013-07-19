@@ -16,6 +16,7 @@ set(mmu_SOURCES
   pager_second_chance.cpp
   pager_clock.cpp
   pager_lru.cpp
+  pager_nru.cpp
 )
 
 add_executable(mmu ${mmu_SOURCES})

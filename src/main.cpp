@@ -26,7 +26,7 @@
 #define PRINT_DEBUG (false)
 #endif
 
-char const * const USAGE_STR = "Usage: ./mmu [-a<algo>] [-o<options>] [–f<num_frames>] inputfile randomfile";
+char const * const USAGE_STR = "Usage: ./mmu [-a<algo:aArfscClN>] [-o<options:OPpFfS>] [–f<num_frames>] inputfile randomfile";
 
 namespace PARAMS
 {
@@ -107,6 +107,7 @@ int main(int argc, char const *argv[])
         pager = plru;
       }
         break;
+      case 'N':  pager = new mms::pager_nru(PARAMS::num_frames, mmu_pt, NUM_PAGES);      break;
       default:  cerr << "Error: invalid pager algorithm \"" << PARAMS::algo << '"' << endl;  exit(5);
     }
 
@@ -158,6 +159,7 @@ int main(int argc, char const *argv[])
       }
 
       OUT(INSTR_PAGES) << page_table_to_string(pt);
+      OUT(INSTR_FRAMES) << frame_table_to_string(pt);
     }
   }
 
@@ -196,6 +198,7 @@ void parse_args(int argc, char const *argv[]) {
             case 'P':  OutFilePrinter::ReportingMode() |= FINAL_PAGES;   break;
             case 'p':  OutFilePrinter::ReportingMode() |= INSTR_PAGES;   break;
             case 'F':  OutFilePrinter::ReportingMode() |= FINAL_FRAMES;  break;
+            case 'f':  OutFilePrinter::ReportingMode() |= INSTR_FRAMES;  break;
             case 'S':  OutFilePrinter::ReportingMode() |= SUMMARY;       break;
             default: throw std::invalid_argument(arg + " unknown option " + arg[j]);
           }

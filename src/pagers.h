@@ -8,5 +8,6 @@
 #include "__pager_second_chance.h"
 #include "__pager_clock.h"
 #include "__pager_lru.h"
+#include "__pager_nru.h"
 
 #endif //__PAGERS_H__
