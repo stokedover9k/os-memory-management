@@ -9,5 +9,6 @@
 #include "__pager_clock.h"
 #include "__pager_lru.h"
 #include "__pager_nru.h"
+#include "__pager_aging.h"
 
 #endif //__PAGERS_H__

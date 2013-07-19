@@ -25,8 +25,8 @@ namespace mms
 
   protected:
     virtual indx_t next_to_evict() = 0;
-    virtual void after_free_page( indx_t page, indx_t frame ) = 0;
-    virtual void after_load_page( indx_t page, indx_t frame ) = 0;
+    virtual void after_free_page( indx_t page, indx_t frame ) { };
+    virtual void after_load_page( indx_t page, indx_t frame ) { };
 
     page_table * const page_table_;
 

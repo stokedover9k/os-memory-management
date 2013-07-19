@@ -101,13 +101,15 @@ int main(int argc, char const *argv[])
       case 'c':  pager = new mms::pager_clock_p(PARAMS::num_frames, mmu_pt);             break;
       case 'C':  pager = new mms::pager_clock_v(PARAMS::num_frames, mmu_pt, NUM_PAGES);  break;
       case 'l':
-      {
-        mms::pager_lru * plru = new mms::pager_lru(PARAMS::num_frames, mmu_pt);
-        mmu_pt->set_access_signal( plru->get_access_signal_object() );
-        pager = plru;
-      }
+        {
+          mms::pager_lru * plru = new mms::pager_lru(PARAMS::num_frames, mmu_pt);
+          mmu_pt->set_access_signal( plru->get_access_signal_object() );
+          pager = plru;
+        }
         break;
       case 'N':  pager = new mms::pager_nru(PARAMS::num_frames, mmu_pt, NUM_PAGES);      break;
+      case 'a':  pager = new mms::pager_aging_p(PARAMS::num_frames, mmu_pt);             break;
+      case 'A':  pager = new mms::pager_aging_v(PARAMS::num_frames, mmu_pt, NUM_PAGES);  break;
       default:  cerr << "Error: invalid pager algorithm \"" << PARAMS::algo << '"' << endl;  exit(5);
     }
 
