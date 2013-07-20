@@ -1,5 +1,7 @@
 os-memory-management
 ====================
+Author: Yuriy Skobov
+Date: 07/20/2013
 
 Memory Management lab for Franke's OS course
 
