@@ -56,7 +56,7 @@ namespace rnd
 {
   typedef looping_random_iterator<std::vector<int> > random_vector_looping_iterator;
 };
-#define VRAND rnd::random_generator<typename rnd::random_vector_looping_iterator>()
+#define VRAND rnd::random_generator<rnd::random_vector_looping_iterator>()
 
 #endif //SKIP_RANDOM_GENERATOR_DEFS
 
