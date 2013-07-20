@@ -26,6 +26,16 @@ namespace mms
 
   private:
     std::list<indx_t> frame_use_queue;
+
+    struct lru_alert_at_signal
+    {
+      pager_lru * pager;
+      inline void operator()(indx_t page, mmu::access_instruction instr)
+      {
+        pager->access_signal(page, instr);
+      }
+    };
+
   }; //--pager_lru-------------------//
 
 };

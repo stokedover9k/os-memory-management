@@ -21,6 +21,7 @@ mms::indx_t mms::pager_lru::next_to_evict()
 std::function<void(mms::indx_t page, mms::mmu::access_instruction)> 
 mms::pager_lru::get_access_signal_object()
 {
-  auto s = [this](indx_t page, mmu::access_instruction instr)->void { access_signal(page, instr); };
+  lru_alert_at_signal s;
+  s.pager = this;
   return std::function<void(indx_t page, mmu::access_instruction)>(s);
 }

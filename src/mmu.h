@@ -37,11 +37,18 @@ namespace mms
   //=================================//
   {
     typedef std::function<void(indx_t, access_instruction)> access_signal_type;
+  private:
+    struct do_nothing_at_signal
+    {
+      inline void operator()(indx_t page, access_instruction i) { ; }
+    };
+
+  public:
 
     mmu_with_vector_page_table(
       unsigned int num_pages, 
       access_signal_type
-        = [](indx_t page, access_instruction x){;});
+        = do_nothing_at_signal());
 
     // mmu interface
     indx_t access_page(access_instruction, indx_t);
